@@ -18,16 +18,10 @@ int main(int argc, char* argv[])
 	centimeters l2{ 10 };
 	kilometers l3{ 1 };
 
-	
-	std::cout << l1 << std::endl; // 100 meters
-	std::cout << l2 << std::endl; // 10 centimeters
-	std::cout << l3 << std::endl; // 1 kilometer
-
 
 	// operator+() and operator-()
 	std::cout << l3 + l1 << std::endl; // 1100 meters
-	std::cout << l2 + l1 << std::endl; // 10010 centimters
-	//std::cout << l3 - l1 << std::endl; // 900 meters
+	std::cout << l3 - l1 << std::endl; // 900 meters
 
 	return 0;
 }

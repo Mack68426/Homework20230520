@@ -6,6 +6,11 @@
 #include <utility>
 #include <ostream>
 
+template<typename Metric, typename OtherMetric>
+struct min_metric
+{
+	min_metric(){}
+};
 
 template<typename Metric>
 class metrics_length
@@ -20,30 +25,44 @@ public:
 	auto operator+(const metrics_length<OtherMetric>& other)
 	{
 		using ResultMetric = std::ratio<
-							 (Metric::num <= OtherMetric::num) ? Metric::num : OtherMetric::num,
-							 (Metric::den > OtherMetric::den) ? Metric::den : OtherMetric::den>;
+							 (std::ratio_less_equal_v<Metric, OtherMetric>) ?
+							  Metric::num : OtherMetric::num,
+							 (std::ratio_less_equal_v<Metric, OtherMetric>) ?
+							  Metric::den : OtherMetric::den>;
 
-		// 1 km -> 1*1000m
-		// 10 cm 
-		intmax_t my_value =  std::ratio_less_equal_v<Metric, ResultMetric> ?
+		
+		intmax_t my_value = (std::ratio_less_equal_v<Metric, ResultMetric>) ? 
 							 m_value : m_value * Metric::num / Metric::den;
 
-		// 100 m
-		// 100 m -> 100*100cm
-		intmax_t other_value = std::ratio_less_equal_v<OtherMetric, ResultMetric> ?
-							   other.m_value : 
-							   other.m_value * ResultMetric::num / ResultMetric::den;
+		
+		intmax_t other_value = (std::ratio_less_equal_v<OtherMetric, ResultMetric>) ?
+								other.m_value : other.m_value * OtherMetric::num / OtherMetric::den;
 
-		// 1000 + 100m = 1100
-		// 10 + 10000 = 10010
+		
 		intmax_t result_value = (my_value + other_value);
 
-		return metrics_length<ResultMetric>
-		{
-			result_value
-		};
+		return metrics_length<ResultMetric>{ result_value };
 	}
 	
+	template<typename OtherMetric>
+	auto operator-(const metrics_length<OtherMetric>& other)
+	{
+		using ResultMetric = std::ratio<
+							 (std::ratio_less_equal_v<Metric, OtherMetric>) ?
+							  Metric::num : OtherMetric::num,
+							 (std::ratio_less_equal_v<Metric, OtherMetric>) ?
+							  Metric::den : OtherMetric::den>;
+
+		intmax_t my_value = (std::ratio_less_equal_v<Metric, ResultMetric>) ? 
+							 m_value : m_value * Metric::num / Metric::den;
+
+		intmax_t other_value = (std::ratio_less_equal_v<OtherMetric, ResultMetric>) ?
+								other.m_value : other.m_value * OtherMetric::num / OtherMetric::den;
+		
+		intmax_t result_value = (my_value - other_value);
+
+		return metrics_length<ResultMetric>{result_value};
+	}
 
 public:
 	intmax_t m_value;
